@@ -1,2 +1,2 @@
 # Flashcard-Generator
-A basic flashcard application.  
+This project is a Command line Flashcard Application which utilizes NodeJS for simple "backend" interaction. This basic flashcard application essentially constitutes an API that will allow users to create two types of flashcards (Basic or Cloze). With this application users can create a fun and interactive studying tool that will help them to remember the important part of a sentence, vocabulary definitions, or equations!
