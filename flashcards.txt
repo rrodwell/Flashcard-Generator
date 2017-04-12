@@ -1,3 +1,8 @@
 
-BASIC:how many,3
-BASIC:what is it ,test
+BASIC,how many,3
+BASIC,what is it,test
+CLOZE,this is an,example
+BASIC,what type of animal is a beagal?,dog
+BASIC,what is the color of the sky?,blue
+CLOZE,Ryan Rodwell was the punter for GT,Ryan Rodwell
+BASIC,what is this kids name?,Ram

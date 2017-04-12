@@ -7,7 +7,7 @@ var FILE_NAME = "flashcards.txt";
 var start = {
     type: "list",
     message: "Where would you like to begin?",
-    choices: ["Make Flashcards", "Being Studying"],
+    choices: ["Make Flashcards", "Begin Studying"],
     name: "choice"
 };
 
@@ -44,16 +44,15 @@ function pickType(){
     ]).then(function(userChoice){
 
         if(userChoice.choice === "Basic Cards"){
-            makeBasicFlashCards();
+            makeFlashCards("BASIC");
         } else {
-            //makeClozeFlashCards();
-            console.log("make cloze");
+            makeFlashCards("CLOZE");
         }
 
     });
 }
 
-function makeBasicFlashCards(){
+function makeFlashCards(cardType){
     //ask user for question(input)
     //ask user for correct answer(input)
     //ask if they want to make another flashcard(choice)
@@ -80,15 +79,17 @@ function makeBasicFlashCards(){
     ]).then(function(userChoice){
 
         //Log flashcards in txt file or FireBase(time depending)
-        var flashcard = "\nBASIC:"+userChoice.question+","+ userChoice.answer;
+        var flashcard = "\n"+cardType+","+userChoice.question+","+ userChoice.answer;
         fs.appendFile(FILE_NAME, flashcard, function(err){
             if(err){ console.log(err); }
         });
         if(userChoice.confirm === true){
-            makeBasicFlashCards();
+            makeFlashCards(cardType);
         }
     });
 }
+
+
 //readFile function
 function read(){
    //read txt file
@@ -97,30 +98,77 @@ function read(){
     //run studyFlashCards
     fs.readFile(FILE_NAME, "utf8",function(err, data){
         if(err){ console.log(err); }
+        var flashcards = [];
         var questionCount = data.split("\n");
         for (var i = 0; i < questionCount.length; i++) {
             if(questionCount[i] !== ""){
-                console.log(questionCount[i]);
+                //split question and answer
+                //remove question type
+                var card = questionCount[i].split(",");
+                if(card[0] === "BASIC"){
+                    var basicOBJ = new BasicCard(card[1],card[2]);
+                    flashcards.push(basicOBJ);
+                } else {
+                    var clozeOBJ = new ClozeCard(card[1],card[2]);
+                    flashcards.push(clozeOBJ);
+                }
             }
         }
-        // var question = splitQA[0].split(":")[1];
-        // console.log(question);
+        studyFlashCards(flashcards);
     });
 }
 
 
-
 //Study
-function studyFlashCards(){
-    // inquirer.prompt([
-    //     flashCardObj
-    // ]).then(function(userChoice){
-    //     console.log("sweet!");
-    // });
+function studyFlashCards(arrFlashcards){
+    for (var i = 0; i < arrFlashcards.length; i++) {
+        if(arrFlashcards[i] instanceof ClozeCard){
+            console.log("cloze");
+        } else {
+            inquireBasic(arrFlashcards[i],function(){
+                console.log("Next question.");
+                continue;
+            });
+            break;
+        }
+
+        //forloop
+        // inquirer.prompt([
+        //     flashCardObj
+        // ]).then(function(userChoice){
+        //     console.log("sweet!");
+        // });
+    }
 }
 
+function inquireBasic(questionOBJ,callback){
+    console.log(questionOBJ.front)
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is your answer?",
+            name: "answer"
+        }
+    ]).then(function(userChoice){
+        if(userChoice.answer === questionOBJ.back){
+            console.log("That is correct!");
+            callback();
+        } else {
+            console.log("I'm sorry, that is incorrect...");
+            callback();
+        }
+    });
+}
 
+function inquireCloze(){
+    inquirer.prompt([
+        {
 
+        }
+    ]).then(function(userChoice){
+
+    });
+}
 
 //Start program
 function Begin(obj){
