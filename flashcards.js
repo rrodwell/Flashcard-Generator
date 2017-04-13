@@ -3,6 +3,7 @@ var inquirer = require("inquirer");
 var prompt = require("prompt");
 
 var FILE_NAME = "flashcards.txt";
+var numQuestion = 0;
 
 //Start object asking what the user wants to do
 var start = {
@@ -92,7 +93,7 @@ function makeFlashCards(cardType){
 
 
 //readFile function
-function read(){
+function read(count){
    //read txt file
     //split data by question BASIC or CLOZE
     //make new prototype obj accordingly
@@ -115,55 +116,64 @@ function read(){
                 }
             }
         }
-        studyFlashCards(flashcards);
+        inquireQuestion(flashcards,count);
     });
 }
 
-//callback function
-function callback(){
-  console.log("Next flashcard.");
-}
 
-//Study
-function studyFlashCards(arrFlashcards){
-    for (var i = 0; i < arrFlashcards.length; i++) {
-        if(arrFlashcards[i] instanceof ClozeCard){
-            console.log("cloze");
+function inquireQuestion(questionOBJ,count) {
+    if(count < questionOBJ.length) {
+        if ((questionOBJ[count] instanceof ClozeCard)) {
+            console.log("Question: " + questionOBJ[count].front);
+            inquirer.prompt([
+                {
+                    type: "input",
+                    message: "What is your answer?",
+                    name: "answer"
+                }
+            ]).then(function (userChoice) {
+                studyCloze(userChoice,questionOBJ,count);
+            });
         } else {
-            inquireBasic(arrFlashcards[i], callback);
-            break;
+            console.log("Question: " + questionOBJ[count].front);
+            inquirer.prompt([
+                {
+                    type: "input",
+                    message: "What is your answer?",
+                    name: "answer"
+                }
+            ]).then(function (userChoice) {
+                studyBasic(userChoice,questionOBJ,count);
+            });
         }
-        continue;
     }
 }
 
-function inquireBasic(questionOBJ,callback){
-    console.log(questionOBJ.front);
-    inquirer.prompt([
-        {
-            type: "input",
-            message: "What is your answer?",
-            name: "answer"
-        }
-    ]).then(function(userChoice){
-        if(userChoice.answer === questionOBJ.back){
-            console.log("That is correct!");
-            callback();
-        } else {
-            console.log("I'm sorry, that is incorrect...");
-        }
-        // callback();
-    });
+//Study Basic cards
+function studyBasic(choice,cardsArr,num){
+    if (choice.answer === cardsArr[num].back) {
+        console.log("That is CORRECT!");
+        var newCount = num+1;
+        inquireQuestion(cardsArr, newCount);
+    } else {
+        console.log("That is INCORRECT.");
+        console.log("The right answer is "+ cardsArr[num].back);
+        var newCount = num+1;
+        inquireQuestion(cardsArr, newCount);
+    }
 }
 
-function inquireCloze(){
-    inquirer.prompt([
-        {
-
-        }
-    ]).then(function(userChoice){
-
-    });
+//Study Cloze cards
+function studyCloze(choice,cardsArr,num){
+    if (choice.answer === cardsArr[num].back) {
+        console.log("That is CORRECT!");
+        var newCount = num+1;
+        inquireQuestion(cardsArr, newCount);
+    } else {
+        console.log("That is INCORRECT...");
+        var newCount = num+1;
+        inquireQuestion(cardsArr, newCount);
+    }
 }
 
 //Start program
@@ -177,7 +187,7 @@ function Begin(obj){
             pickType();
         } else {
             console.log("Lets study!");
-            read();
+            read(numQuestion);
         }
     });
 }
