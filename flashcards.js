@@ -1,5 +1,6 @@
 var fs = require("fs");
 var inquirer = require("inquirer");
+var prompt = require("prompt");
 
 var FILE_NAME = "flashcards.txt";
 
@@ -118,6 +119,10 @@ function read(){
     });
 }
 
+//callback function
+function callback(){
+  console.log("Next flashcard.");
+}
 
 //Study
 function studyFlashCards(arrFlashcards){
@@ -125,24 +130,15 @@ function studyFlashCards(arrFlashcards){
         if(arrFlashcards[i] instanceof ClozeCard){
             console.log("cloze");
         } else {
-            inquireBasic(arrFlashcards[i],function(){
-                console.log("Next question.");
-                continue;
-            });
+            inquireBasic(arrFlashcards[i], callback);
             break;
         }
-
-        //forloop
-        // inquirer.prompt([
-        //     flashCardObj
-        // ]).then(function(userChoice){
-        //     console.log("sweet!");
-        // });
+        continue;
     }
 }
 
 function inquireBasic(questionOBJ,callback){
-    console.log(questionOBJ.front)
+    console.log(questionOBJ.front);
     inquirer.prompt([
         {
             type: "input",
@@ -155,8 +151,8 @@ function inquireBasic(questionOBJ,callback){
             callback();
         } else {
             console.log("I'm sorry, that is incorrect...");
-            callback();
         }
+        // callback();
     });
 }
 
