@@ -1,8 +1,7 @@
 
-BASIC,how many,3
-BASIC,what is it,test
-CLOZE,this is an,example
-BASIC,what type of animal is a beagal?,dog
-BASIC,what is the color of the sky?,blue
+BASIC,How many days are in a week?,7
+BASIC,What color is the sky?,blue
+CLOZE,George Washington was the first president of the United States.,George Washington
+BASIC,what type of animal is a penguin?,bird
+BASIC,who is GT's mascot?,Buzz
 CLOZE,Ryan Rodwell was the punter for GT,Ryan Rodwell
-BASIC,what is this kids name?,Ram

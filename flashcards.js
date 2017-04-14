@@ -19,8 +19,9 @@ function BasicCard(front,back){
     this.back = back;
 }
 
-function ClozeCard(text,cloze){
+function ClozeCard(text,partial,cloze){
     this.text = text;
+    this.partial = partial;
     this.cloze = cloze;
 }
 
@@ -54,7 +55,7 @@ function pickType(){
     });
 }
 
-function makeFlashCards(cardType){
+function makeFlashCards(cardType) {
     //ask user for question(input)
     //ask user for correct answer(input)
     //ask if they want to make another flashcard(choice)
@@ -78,16 +79,37 @@ function makeFlashCards(cardType){
             default: true
         }
 
-    ]).then(function(userChoice){
+    ]).then(function (userChoice) {
 
-        //Log flashcards in txt file or FireBase(time depending)
-        var flashcard = "\n"+cardType+","+userChoice.question+","+ userChoice.answer;
-        fs.appendFile(FILE_NAME, flashcard, function(err){
-            if(err){ console.log(err); }
-        });
-        if(userChoice.confirm === true){
-            makeFlashCards(cardType);
+        if (cardType === "CLOZE") {
+            //check if the answer is in the question
+            if (userChoice.question.indexOf(userChoice.answer) > -1) {
+                var flashcard = "\n" + cardType + "," + userChoice.question + "," + userChoice.answer;
+                fs.appendFile(FILE_NAME, flashcard, function (err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                if (userChoice.confirm === true) {
+                    makeFlashCards(cardType);
+                }
+            } else {
+                console.log("The answer needs to apart of the question.");
+                makeFlashCards(cardType);
+            }
+        } else {
+            //Log flashcards in txt file or FireBase(time depending)
+            var flashcard = "\n" + cardType + "," + userChoice.question + "," + userChoice.answer;
+            fs.appendFile(FILE_NAME, flashcard, function (err) {
+                if (err) {
+                    console.log(err);
+                }
+            });
+            if (userChoice.confirm === true) {
+                makeFlashCards(cardType);
+            }
         }
+
     });
 }
 
@@ -111,7 +133,8 @@ function read(count){
                     var basicOBJ = new BasicCard(card[1],card[2]);
                     flashcards.push(basicOBJ);
                 } else {
-                    var clozeOBJ = new ClozeCard(card[1],card[2]);
+                    var partialCloze = card[1].replace(card[2],"_______");
+                    var clozeOBJ = new ClozeCard(card[1],partialCloze,card[2]);
                     flashcards.push(clozeOBJ);
                 }
             }
@@ -124,7 +147,7 @@ function read(count){
 function inquireQuestion(questionOBJ,count) {
     if(count < questionOBJ.length) {
         if ((questionOBJ[count] instanceof ClozeCard)) {
-            console.log("Question: " + questionOBJ[count].front);
+            console.log("Question: " + questionOBJ[count].partial);
             inquirer.prompt([
                 {
                     type: "input",
@@ -156,7 +179,7 @@ function studyBasic(choice,cardsArr,num){
         var newCount = num+1;
         inquireQuestion(cardsArr, newCount);
     } else {
-        console.log("That is INCORRECT.");
+        console.log("That is INCORRECT...");
         console.log("The right answer is "+ cardsArr[num].back);
         var newCount = num+1;
         inquireQuestion(cardsArr, newCount);
@@ -165,12 +188,14 @@ function studyBasic(choice,cardsArr,num){
 
 //Study Cloze cards
 function studyCloze(choice,cardsArr,num){
-    if (choice.answer === cardsArr[num].back) {
+    if (choice.answer === cardsArr[num].cloze) {
         console.log("That is CORRECT!");
         var newCount = num+1;
         inquireQuestion(cardsArr, newCount);
     } else {
         console.log("That is INCORRECT...");
+        console.log("The right answer is '"+ cardsArr[num].text+"'");
+
         var newCount = num+1;
         inquireQuestion(cardsArr, newCount);
     }
